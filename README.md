@@ -5,19 +5,7 @@ Projekt skupia się na predykcji trójwymiarowych struktur białkowych na bazie 
 
 ---
 
-## 📌 Harmonogram Projektu (Milestones)
-
-* [x] **Meeting 1:** Overview of the projects; team assignment (Team 2: AFDB).
-* [x] **Meeting 2:** Train / test dataset preparation (klastrowanie sekwencji 30% i 50%, podział 4000/500/500, pobieranie struktur CIF).
-* [ ] **Meeting 3:** End-to-end skeleton with working input/output (pipeline: sekwencja $\to$ dummy model $\to$ współrzędne 3D $\to$ CIF).
-* [ ] **Meeting 4:** Adding evaluation framework (metryki: RMSD, TM-score, GDT_TS, lDDT).
-* [ ] **Meeting 5:** Adding baseline methods (benchmark z ESMFold / ESM3).
-* [ ] **Meeting 6:** Model implementation (docelowa architektura sieci grafowej / transformera i trening).
-* [ ] **Meeting 7:** Final presentation (20 min. podsumowania wyników, analizy błędów i wizualizacji 3D).
-
----
-
-## 📂 Struktura Repozytorium
+## Struktura Repozytorium
 
 ```
 projekt/
@@ -55,7 +43,6 @@ projekt/
 
 ---
 
-## 🚀 Szybki Start (Quickstart dla członków grupy)
 
 ### 1. Klonowanie repozytorium i środowisko
 ```bash
@@ -88,16 +75,3 @@ Pliki `.cif` ze względu na rozmiar nie są trzymane w GitHube.
 jupyter notebook notebooks/01_dataset_preparation_afdb.ipynb
 ```
 
----
-
-## 👥 Podział Pracy w Zespole (3 osoby)
-
-1. **Osoba 1: Data Engineering & Preprocessing**
-   * Prowadzi moduł `src/data.py` (ekstrakcja cech aminokwasowych, współrzędnych $C_\alpha$, macierzy odległości).
-   * Buduje klasy `torch.utils.data.Dataset` oraz `DataLoader`.
-2. **Osoba 2: Architektura Modelu & Trening**
-   * Prowadzi moduł `src/models.py`.
-   * Odpowiada za szkielet wejście/wyjście (Meeting 3), integrację baseline'u ESMFold (Meeting 5) oraz docelowy model (Meeting 6).
-3. **Osoba 3: Ewaluacja, Benchmark & Prezentacja**
-   * Prowadzi moduł `src/metrics.py` (RMSD, TM-score, lDDT).
-   * Odpowiada za logowanie do Weights & Biases, analizę biologiczną błędów (*error analysis*) oraz przygotowanie prezentacji końcowej (Meeting 7).
