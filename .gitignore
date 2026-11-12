@@ -1,0 +1,38 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+.venv*/
+env/
+venv/
+ENV/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# macOS artifacts
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Large datasets & raw structures (Share via Google Drive / tar.gz, do not commit!)
+structures/
+structures
+*.cif
+*.mmcif
+*.pdb
+*.bcif
+*.pse
+clusters-by-entity-*.txt
+*.tar.gz
+*.zip
+*.tar
+
+# IDE & Editor settings
+.vscode/
+.idea/
+*.swp
+*.swo

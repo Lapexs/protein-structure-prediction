@@ -1,0 +1,18 @@
+# Core scientific & deep learning
+numpy>=1.24.0
+scipy>=1.10.0
+torch>=2.0.0
+scikit-learn>=1.2.0
+
+# Bioinformatics & structure parsing
+biopython>=1.81
+requests>=2.28.0
+
+# Evaluation & Metrics
+# tmtools>=0.0.3
+
+# Jupyter & Workflow
+jupyter>=1.0.0
+ipykernel>=6.20.0
+tqdm>=4.65.0
+matplotlib>=3.7.0
