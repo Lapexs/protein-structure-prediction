@@ -154,47 +154,73 @@ try:
     class ProteinStructureDataset(Dataset):
         """
         PyTorch Dataset for Protein Structure Prediction.
-        Loads primary sequences and true C-alpha coordinates from AFDB CIF files.
+        Loads primary sequences and true C-alpha coordinates from binary cache (.pt)
+        or directly from AFDB CIF files as fallback.
         """
         def __init__(
             self,
             split: str = "eval",
             splits_dir: str = "data/splits",
             structures_dir: str = "structures",
+            processed_dir: str = "data/processed",
+            use_cache: bool = True,
             max_len: int = 512,
             limit: Optional[int] = None
         ):
             self.split = split
             self.max_len = max_len
-            self.structures_dir = Path(structures_dir) / split / "af"
-            
-            raw_ids = load_split(split, splits_dir=splits_dir)
-            if limit:
-                raw_ids = raw_ids[:limit]
-                
+            self.from_cache = False
+            self.cached_items = []
             self.items = []
-            for pid in raw_ids:
-                fname = af_id_to_filename(pid)
-                if not fname:
-                    continue
-                cif_path = self.structures_dir / fname
-                if cif_path.exists() and cif_path.stat().st_size > 0:
-                    self.items.append((pid, cif_path))
+
+            cache_path = Path(processed_dir) / f"{split}.pt"
+            if use_cache and cache_path.exists():
+                try:
+                    payload = torch.load(cache_path, map_location="cpu", weights_only=False)
+                    self.cached_items = payload.get("data", [])
+                    if limit:
+                        self.cached_items = self.cached_items[:limit]
+                    self.from_cache = True
+                except Exception as e:
+                    print(f"Warning: Failed to load cache from {cache_path}: {e}. Falling back to CIF files.")
+                    self.from_cache = False
+
+            if not self.from_cache:
+                self.structures_dir = Path(structures_dir) / split / "af"
+                raw_ids = load_split(split, splits_dir=splits_dir)
+                if limit:
+                    raw_ids = raw_ids[:limit]
+                    
+                for pid in raw_ids:
+                    fname = af_id_to_filename(pid)
+                    if not fname:
+                        continue
+                    cif_path = self.structures_dir / fname
+                    if cif_path.exists() and cif_path.stat().st_size > 0:
+                        self.items.append((pid, cif_path))
 
         def __len__(self) -> int:
-            return len(self.items)
+            return len(self.cached_items) if self.from_cache else len(self.items)
 
         def __getitem__(self, idx: int) -> Dict[str, Any]:
-            pid, cif_path = self.items[idx]
-            seq, coords = parse_cif_ca(str(cif_path))
+            if self.from_cache:
+                item = self.cached_items[idx]
+                pid = item["id"]
+                seq = item["sequence"]
+                coords_t = item["coords"]
+                if len(seq) > self.max_len:
+                    seq = seq[:self.max_len]
+                    coords_t = coords_t[:self.max_len]
+                coords_np = coords_t.numpy() if isinstance(coords_t, torch.Tensor) else np.array(coords_t, dtype=np.float32)
+            else:
+                pid, cif_path = self.items[idx]
+                seq, coords = parse_cif_ca(str(cif_path))
+                if len(seq) > self.max_len:
+                    seq = seq[:self.max_len]
+                    coords = coords[:self.max_len]
+                coords_np = np.array(coords, dtype=np.float32)
             
-            # Truncate if exceeds max length
-            if len(seq) > self.max_len:
-                seq = seq[:self.max_len]
-                coords = coords[:self.max_len]
-                
             tokens = tokenize_sequence(seq)
-            coords_np = np.array(coords, dtype=np.float32)
             
             # Compute pairwise ground truth distance matrix (L, L)
             diff = coords_np[:, np.newaxis, :] - coords_np[np.newaxis, :, :]

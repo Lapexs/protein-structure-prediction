@@ -11,10 +11,11 @@ Projekt skupia się na predykcji trójwymiarowych struktur białkowych na bazie 
 projekt/
 ├── data/
 │   ├── splits/                     # Zdefiniowane zbiory (listy ID białek)
-│   │   ├── train_af.txt            # 4000 białek (train, klastry 50% lub 30%)
-│   │   ├── eval_af.txt             # 500 białek (walidacja)
-│   │   ├── test_af.txt             # 500 białek (test)
-│   │   └── *_30.txt                # Wersje ze ścisłym klastrowaniem 30%
+│   │   ├── train_af.txt            # 40 000 białek (Wariant Duży, klastry 30%)
+│   │   ├── eval_af.txt             # 5 000 białek (walidacja)
+│   │   ├── test_af.txt             # 5 000 białek (test)
+│   │   └── *_30.txt                # Wersja standardowa (4000 / 500 / 500)
+│   ├── processed/                  # Binarne cache tensorowe PyTorch (*.pt, gitignored)
 │   └── raw/                        # Katalog na surowe pliki klastrów RCSB (gitignored)
 │
 ├── notebooks/
@@ -23,14 +24,16 @@ projekt/
 │
 ├── src/                            # Współdzielone moduły Pythona
 │   ├── __init__.py
-│   ├── data.py                     # Ładowanie splitów, dataset PyTorch, parser CIF, eksport PDB
+│   ├── data.py                     # Ładowanie splitów, dataset PyTorch (cache/CIF), parser, eksport PDB
 │   ├── metrics.py                  # Metryki geometryczne (dRMSD, Kabsch RMSD, contact precision)
 │   └── models.py                   # Model ProteinStructureSkeleton i funkcja straty dRMSDLoss
 │
 ├── scripts/                        # Samodzielne skrypty CLI
 │   ├── run_skeleton.py             # Uruchomienie demonstracji szkieletu end-to-end
-│   ├── split_clusters.py           # Generator podziału klastrów (flagi --identity 30/50)
-│   ├── download_structures.sh      # Pobieranie struktur CIF z AlphaFold DB (obsługa 429)
+│   ├── split_clusters.py           # Generator podziału klastrów (--train, --eval, --test, --identity)
+│   ├── download_structures_fast.py # Równoległe wielowątkowe pobieranie CIF (obsługa HTTP 429 i resume)
+│   ├── build_dataset_cache.py      # Budowanie kompaktowego cache tensorowego .pt z plików CIF
+│   ├── download_structures.sh      # Pobieranie struktur skryptem bash
 │   └── extract_chain.py            # Skrypt pomocniczy (Team 1 PDB)
 │
 ├── predictions/                    # Przykładowe wyjścia modelu (pliki .pdb i wykresy)
@@ -65,17 +68,20 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 2. Dostęp do struktur białkowych (~1.6 GB)
-Pliki `.cif` ze względu na rozmiar nie są trzymane w GitHube.
-* **Opcja A (Zalecana):** Pobierz spakowane archiwum `structures_af.tar.gz` ze wspólnego Google Drive'a i rozpakuj w głównym folderze:
+### 2. Dostęp do struktur białkowych i Cache
+Pliki `.cif` ze względu na duży rozmiar nie są wrzucane do Gita.
+
+* **Pobieranie struktur (wielowątkowy downloader z wznawianiem i obsługą rate-limit 429):**
   ```bash
-  tar -xzvf structures_af.tar.gz
+  python scripts/download_structures_fast.py --split eval --workers 8
+  python scripts/download_structures_fast.py --split test --workers 8
+  python scripts/download_structures_fast.py --split train --workers 8
   ```
-* **Opcja B (Pobranie skryptem):**
+
+* **Budowanie binarnego cache PyTorch (`.pt`):**
+  Zamienia pobrane pliki CIF na kompaktowe tensory w `data/processed/` (~150-200 MB dla 50k białek zamiast ~15 GB CIF), przyspieszając ładowanie w `Dataset` do ułamka sekundy:
   ```bash
-  ./download_structures.sh eval af
-  ./download_structures.sh test af
-  ./download_structures.sh train af
+  python scripts/build_dataset_cache.py --split all
   ```
 
 ### 3. Uruchomienie szkieletu (Meeting 3)

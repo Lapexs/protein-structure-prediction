@@ -30,6 +30,8 @@ clusters-by-entity-*.txt
 *.tar.gz
 *.zip
 *.tar
+data/processed/*.pt
+*.pt
 
 # IDE & Editor settings
 .vscode/
