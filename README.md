@@ -15,6 +15,8 @@ projekt/
 │   │   ├── eval_af.txt             # 5 000 białek (walidacja)
 │   │   ├── test_af.txt             # 5 000 białek (test)
 │   │   └── *_30.txt                # Wersja standardowa (4000 / 500 / 500)
+│   ├── samples/                    # Przykładowe pliki FASTA do testowania predyktora
+│   │   └── sample_multi.fasta      # Testowy multi-protein FASTA (różne długości, X, >1024 AA)
 │   ├── processed/                  # Binarne cache tensorowe PyTorch (*.pt, gitignored)
 │   └── raw/                        # Katalog na surowe pliki klastrów RCSB (gitignored)
 │
@@ -24,17 +26,22 @@ projekt/
 │
 ├── src/                            # Współdzielone moduły Pythona
 │   ├── __init__.py
+│   ├── predictor.py                # Szablon predyktora (scikit-bio, tensory (B, D, N), maska, format wwPDB)
 │   ├── data.py                     # Ładowanie splitów, dataset PyTorch (cache/CIF), parser, eksport PDB
 │   ├── metrics.py                  # Metryki geometryczne (dRMSD, Kabsch RMSD, contact precision)
 │   └── models.py                   # Model ProteinStructureSkeleton i funkcja straty dRMSDLoss
 │
 ├── scripts/                        # Samodzielne skrypty CLI
-│   ├── run_skeleton.py             # Uruchomienie demonstracji szkieletu end-to-end
+│   ├── predict_structure.py        # CLI predyktora FASTA -> wwPDB (Meeting 3)
+│   ├── run_skeleton.py             # Uruchomienie demonstracji szkieletu end-to-end (dRMSD loss)
 │   ├── split_clusters.py           # Generator podziału klastrów (--train, --eval, --test, --identity)
 │   ├── download_structures_fast.py # Równoległe wielowątkowe pobieranie CIF (obsługa HTTP 429 i resume)
 │   ├── build_dataset_cache.py      # Budowanie kompaktowego cache tensorowego .pt z plików CIF
 │   ├── download_structures.sh      # Pobieranie struktur skryptem bash
 │   └── extract_chain.py            # Skrypt pomocniczy (Team 1 PDB)
+│
+├── tests/                          # Testy jednostkowe
+│   └── test_meeting3_skeleton.py   # Testy parsowania FASTA, kształtów tensorów (B,D,N), maskowania i wwPDB
 │
 ├── predictions/                    # Przykładowe wyjścia modelu (pliki .pdb i wykresy)
 │   ├── AF_AFB1JDR0F1_1_predicted.pdb
@@ -84,12 +91,24 @@ Pliki `.cif` ze względu na duży rozmiar nie są wrzucane do Gita.
   python scripts/build_dataset_cache.py --split all
   ```
 
-### 3. Uruchomienie szkieletu (Meeting 3)
-* **W konsoli:**
+### 3. Uruchomienie predyktora FASTA -> PDB (Meeting 3 Skeleton Template)
+* **Wczytanie FASTA za pomocą `scikit-bio` i generowanie struktur PDB:**
+  ```bash
+  python scripts/predict_structure.py --fasta data/samples/sample_multi.fasta --out-dir predictions/meeting3_pdb
+  ```
+  Przetwarza multi-protein FASTA na tensory `(B, D, N)` z maską `(B, D)` i generuje pliki `.pdb` z atomami $C_\alpha$ ściśle według specyfikacji wwPDB Format v3.3 (brak wpisów dla paddingu).
+
+* **Uruchomienie testu szkieletu treningowego (dRMSD loss & sanity check):**
   ```bash
   python scripts/run_skeleton.py
   ```
+
 * **W Jupyter Notebooku:**
   ```bash
   jupyter notebook notebooks/02_end_to_end_skeleton.ipynb
+  ```
+
+* **Uruchomienie testów jednostkowych:**
+  ```bash
+  python tests/test_meeting3_skeleton.py
   ```
