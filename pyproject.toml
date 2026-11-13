@@ -1,0 +1,17 @@
+[project]
+name = "protein-structure-prediction"
+version = "0.1.0"
+description = "Protein Structure Prediction on AlphaFold DB (Team 2)"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "torch>=2.0.0",
+    "biopython>=1.81",
+    "numpy>=1.24.0",
+    "scipy>=1.10.0",
+    "scikit-learn>=1.2.0",
+    "matplotlib>=3.7.0",
+    "jupyter>=1.0.0",
+    "ipykernel>=6.20.0",
+    "tqdm>=4.65.0",
+]

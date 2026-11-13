@@ -5,7 +5,7 @@ Projekt skupia się na predykcji trójwymiarowych struktur białkowych na bazie 
 
 ---
 
-## Struktura Repozytorium
+## 📂 Struktura Repozytorium
 
 ```
 projekt/
@@ -18,18 +18,24 @@ projekt/
 │   └── raw/                        # Katalog na surowe pliki klastrów RCSB (gitignored)
 │
 ├── notebooks/
-│   └── 01_dataset_preparation_afdb.ipynb  # Kompleksowy notebook przygotowania danych
+│   ├── 01_dataset_preparation_afdb.ipynb  # Przygotowanie i pobieranie danych (Meeting 2)
+│   └── 02_end_to_end_skeleton.ipynb       # Szkielet end-to-end wejście/wyjście (Meeting 3)
 │
 ├── src/                            # Współdzielone moduły Pythona
 │   ├── __init__.py
-│   ├── data.py                     # Ładowanie splitów, tłumaczenie ID, szybki parser CIF
-│   ├── metrics.py                  # Metryki geometryczne (RMSD, dRMSD, TM-score)
-│   └── models.py                   # Szkielety modeli i architektur (Meeting 3 & 6)
+│   ├── data.py                     # Ładowanie splitów, dataset PyTorch, parser CIF, eksport PDB
+│   ├── metrics.py                  # Metryki geometryczne (dRMSD, Kabsch RMSD, contact precision)
+│   └── models.py                   # Model ProteinStructureSkeleton i funkcja straty dRMSDLoss
 │
 ├── scripts/                        # Samodzielne skrypty CLI
+│   ├── run_skeleton.py             # Uruchomienie demonstracji szkieletu end-to-end
 │   ├── split_clusters.py           # Generator podziału klastrów (flagi --identity 30/50)
 │   ├── download_structures.sh      # Pobieranie struktur CIF z AlphaFold DB (obsługa 429)
 │   └── extract_chain.py            # Skrypt pomocniczy (Team 1 PDB)
+│
+├── predictions/                    # Przykładowe wyjścia modelu (pliki .pdb i wykresy)
+│   ├── AF_AFB1JDR0F1_1_predicted.pdb
+│   └── distance_matrix_comparison.png
 │
 ├── structures/                     # Pobrane pliki .cif (~1.6 GB, gitignored, współdzielone dyskiem)
 │   ├── train/af/
@@ -37,12 +43,14 @@ projekt/
 │   └── test/af/
 │
 ├── requirements.txt                # Zależności bibliotek w Pythonie
+├── pyproject.toml                  # Konfiguracja środowiska
 ├── .gitignore                      # Ignorowanie dużych struktur, wag modeli i cache
 └── README.md                       # Dokumentacja projektu
 ```
 
 ---
 
+## 🚀 Szybki Start (Quickstart dla członków grupy)
 
 ### 1. Klonowanie repozytorium i środowisko
 ```bash
@@ -70,8 +78,12 @@ Pliki `.cif` ze względu na rozmiar nie są trzymane w GitHube.
   ./download_structures.sh train af
   ```
 
-### 3. Uruchomienie notebooka
-```bash
-jupyter notebook notebooks/01_dataset_preparation_afdb.ipynb
-```
-
+### 3. Uruchomienie szkieletu (Meeting 3)
+* **W konsoli:**
+  ```bash
+  python scripts/run_skeleton.py
+  ```
+* **W Jupyter Notebooku:**
+  ```bash
+  jupyter notebook notebooks/02_end_to_end_skeleton.ipynb
+  ```
