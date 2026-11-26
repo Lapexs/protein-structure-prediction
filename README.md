@@ -1,4 +1,4 @@
-# Protein Structure Prediction (PSP) — Team 2 (AFDB)
+# Protein Structure Prediction (PSP) — AlphaFold DB (AF)
 
 Repozytorium projektu z przedmiotu Bioinformatyka / Uczenie Maszynowe w Biologii.
 Projekt skupia się na predykcji trójwymiarowych struktur białkowych na bazie modeli z bazy **AlphaFold DB (AFDB)**.
@@ -38,7 +38,7 @@ projekt/
 │   ├── download_structures_fast.py # Równoległe wielowątkowe pobieranie CIF (obsługa HTTP 429 i resume)
 │   ├── build_dataset_cache.py      # Budowanie kompaktowego cache tensorowego .pt z plików CIF
 │   ├── download_structures.sh      # Pobieranie struktur skryptem bash
-│   └── extract_chain.py            # Skrypt pomocniczy (Team 1 PDB)
+│   └── extract_chain.py            # Skrypt pomocniczy (dla struktur eksperymentalnych PDB)
 │
 ├── tests/                          # Testy jednostkowe
 │   └── test_meeting3_skeleton.py   # Testy parsowania FASTA, kształtów tensorów (B,D,N), maskowania i wwPDB
