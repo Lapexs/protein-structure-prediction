@@ -1,0 +1,21 @@
+{
+  "expected": {
+    "train": 4000,
+    "eval": 500,
+    "test": 500
+  },
+  "loaded": {
+    "train": 832,
+    "eval": 500,
+    "test": 500
+  },
+  "failed": 3168,
+  "extra_files": 25,
+  "identical_sequence_cross_split_pairs": 0,
+  "overlapping_ids": 0,
+  "identity_threshold_percent": 30.0,
+  "coverage_threshold_percent": 80.0,
+  "blast_completed": false,
+  "scope": "Sequences reconstructed from observed CA residues in CIF, not full UniProt sequences.",
+  "limitations": "Local heuristic BLAST search; no proof of absence of homology. Both aligned spans must pass coverage. Domain-only similarity may be excluded. No structural similarity audit."
+}
