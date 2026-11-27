@@ -22,17 +22,20 @@ projekt/
 │
 ├── notebooks/
 │   ├── 01_dataset_preparation_afdb.ipynb  # Przygotowanie i pobieranie danych (Meeting 2)
-│   └── 02_end_to_end_skeleton.ipynb       # Szkielet end-to-end wejście/wyjście (Meeting 3)
+│   ├── 02_end_to_end_skeleton.ipynb       # Szkielet end-to-end wejście/wyjście (Meeting 3)
+│   └── 03_evaluation_framework.ipynb      # Framework ewaluacyjny TM-score + OpenStructure lDDT (Meeting 4)
 │
 ├── src/                            # Współdzielone moduły Pythona
 │   ├── __init__.py
 │   ├── predictor.py                # Szablon predyktora (scikit-bio, tensory (B, D, N), maska, format wwPDB)
+│   ├── evaluation.py               # Framework ewaluacyjny (TM-score: RMSD/TM/GDT_TS + OpenStructure CA lDDT)
 │   ├── data.py                     # Ładowanie splitów, dataset PyTorch (cache/CIF), parser, eksport PDB
-│   ├── metrics.py                  # Metryki geometryczne (dRMSD, Kabsch RMSD, contact precision)
+│   ├── metrics.py                  # Metryki pomocnicze (dRMSD, Kabsch RMSD, contact precision)
 │   └── models.py                   # Model ProteinStructureSkeleton i funkcja straty dRMSDLoss
 │
 ├── scripts/                        # Samodzielne skrypty CLI
 │   ├── predict_structure.py        # CLI predyktora FASTA -> wwPDB (Meeting 3)
+│   ├── evaluate_predictions.py     # CLI ewaluacji predykcji -> CSV (Meeting 4)
 │   ├── run_skeleton.py             # Uruchomienie demonstracji szkieletu end-to-end (dRMSD loss)
 │   ├── split_clusters.py           # Generator podziału klastrów (--train, --eval, --test, --identity)
 │   ├── download_structures_fast.py # Równoległe wielowątkowe pobieranie CIF (obsługa HTTP 429 i resume)
@@ -40,8 +43,20 @@ projekt/
 │   ├── download_structures.sh      # Pobieranie struktur skryptem bash
 │   └── extract_chain.py            # Skrypt pomocniczy (dla struktur eksperymentalnych PDB)
 │
+├── tools/                          # Narzędzia zewnętrzne (Meeting 4)
+│   ├── TMscore.cpp                 # Kod źródłowy Zhang Group TM-score (kompilowany do tools/TMscore)
+│   ├── ost_lddt_ca.py              # Skrypt pomocniczy OpenStructure (CA-only lDDT)
+│   └── setup_evaluation_tools.sh   # Skrypt instalacyjny TM-score + OpenStructure (.ost_env)
+│
+├── results/                        # Wyniki ewaluacji w formacie CSV (proteinID,RMSD,TM_score,GDT_TS,lDDT)
+│   ├── evaluation_sanity_identity.csv
+│   ├── evaluation_dummy_random.csv
+│   ├── evaluation_real_esmfold.csv
+│   └── evaluation_comparison.png
+│
 ├── tests/                          # Testy jednostkowe
-│   └── test_meeting3_skeleton.py   # Testy parsowania FASTA, kształtów tensorów (B,D,N), maskowania i wwPDB
+│   ├── test_meeting3_skeleton.py   # Testy parsowania FASTA, kształtów tensorów (B,D,N), maskowania i wwPDB
+│   └── test_meeting4_evaluation.py # Testy TM-score, OpenStructure CA-only lDDT oraz formatu CSV
 │
 ├── predictions/                    # Przykładowe wyjścia modelu (pliki .pdb i wykresy)
 │   ├── AF_AFB1JDR0F1_1_predicted.pdb
@@ -111,4 +126,23 @@ Pliki `.cif` ze względu na duży rozmiar nie są wrzucane do Gita.
 * **Uruchomienie testów jednostkowych:**
   ```bash
   python tests/test_meeting3_skeleton.py
+  ```
+
+### 4. Ewaluacja struktur 3D (Meeting 4: Evaluation Framework)
+Integruje narzędzia **TM-score** (`RMSD`, `TM_score`, `GDT_TS`) oraz **OpenStructure** (`lDDT` w trybie CA-only) i zapisuje wyniki w formacie CSV (`proteinID,RMSD,TM_score,GDT_TS,lDDT`):
+* **Instalacja narzędzi (jednorazowo):**
+  ```bash
+  bash tools/setup_evaluation_tools.sh
+  ```
+* **Uruchomienie ewaluacji z linii poleceń:**
+  ```bash
+  python scripts/evaluate_predictions.py --pred-dir predictions/meeting4_real_test --ref-dir structures/eval/af --pred-suffix _esmfold_ca --out-csv results/evaluation_real_esmfold.csv
+  ```
+* **W Jupyter Notebooku:**
+  ```bash
+  jupyter notebook notebooks/03_evaluation_framework.ipynb
+  ```
+* **Testy jednostkowe ewaluacji:**
+  ```bash
+  python tests/test_meeting4_evaluation.py
   ```

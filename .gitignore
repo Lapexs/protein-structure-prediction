@@ -6,9 +6,11 @@ __pycache__/
 # Virtual environments
 .venv/
 .venv*/
+.ost_env/
 env/
 venv/
 ENV/
+tools/TMscore
 
 # Jupyter Notebook checkpoints
 .ipynb_checkpoints/
